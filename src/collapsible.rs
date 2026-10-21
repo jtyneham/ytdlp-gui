@@ -1,6 +1,6 @@
 use iced::{
     Alignment, Element,
-    widget::{Column, column, text},
+    widget::{Column, column, row, text},
 };
 
 use crate::{Message, i18n::is_rtl, theme::button};
@@ -12,16 +12,17 @@ pub fn collapsible<'a>(
     body: impl Into<Element<'a, Message>>,
 ) -> Column<'a, Message> {
     let arrow = if expanded {
-        "▼"
+        iced_fonts::Bootstrap::ChevronDown
+    } else if is_rtl() {
+        iced_fonts::Bootstrap::ChevronLeft
     } else {
-        if is_rtl() { "◀" } else { "▶" }
+        iced_fonts::Bootstrap::ChevronRight
     };
-    let mut title = text(format!("{arrow}  {title}"));
-    if is_rtl() {
-        title = title.align_x(Alignment::End);
-    }
+    let label = row![iced_fonts::bootstrap::icon(arrow), text(title)]
+        .spacing(10)
+        .align_y(Alignment::Center);
 
-    let header = button(title).on_press(on_toggle).width(iced::Length::Fill);
+    let header = button(label).on_press(on_toggle).width(iced::Length::Fill);
 
     let mut col = column![header].spacing(8);
 
