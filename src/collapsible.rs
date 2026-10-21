@@ -11,14 +11,15 @@ pub fn collapsible<'a>(
     on_toggle: Message,
     body: impl Into<Element<'a, Message>>,
 ) -> Column<'a, Message> {
+    // Use the bundled icon font, avoiding platform-dependent emoji substitution.
     let arrow = if expanded {
-        iced_fonts::Bootstrap::ChevronDown
+        iced_fonts::bootstrap::chevron_down()
     } else if is_rtl() {
-        iced_fonts::Bootstrap::ChevronLeft
+        iced_fonts::bootstrap::chevron_left()
     } else {
-        iced_fonts::Bootstrap::ChevronRight
+        iced_fonts::bootstrap::chevron_right()
     };
-    let label = row![iced_fonts::bootstrap::icon(arrow), text(title)]
+    let label = row![arrow, text(title)]
         .spacing(10)
         .align_y(Alignment::Center);
 
