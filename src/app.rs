@@ -137,6 +137,7 @@ impl YtGUI {
                 }
             }
             Message::StartDownload(link) => {
+                if self.dependency_busy { return iced::Task::none(); }
                 self.config.download_folder = PathBuf::from(
                     shellexpand::tilde(&self.config.download_folder.display().to_string())
                         .to_string(),
