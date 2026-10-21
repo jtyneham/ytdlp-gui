@@ -321,6 +321,32 @@ impl YtGUI {
                     eprintln!("failed to open link {link}: {e}");
                 }
             }
+            Message::CheckDependencies => {
+                if self.dependency_busy || self.command.is_running() { return iced::Task::none(); }
+                self.dependency_busy = true;
+                self.dependency_status = "Checking installed tools...".into();
+                return iced::Task::perform(crate::dependencies::check(self.config.bin_path.clone()), Message::DependencyCheckComplete);
+            }
+            Message::DependencyCheckComplete(status) => {
+                self.dependency_busy = false;
+                self.dependency_status = status;
+            }
+            Message::UpdateYtDlp => {
+                if self.dependency_busy || self.command.is_running() { return iced::Task::none(); }
+                self.dependency_busy = true;
+                self.dependency_status = "Updating yt-dlp...".into();
+                return iced::Task::perform(crate::dependencies::update_ytdlp(self.config.bin_path.clone()), Message::DependencyUpdateComplete);
+            }
+            Message::UpdateFfmpeg => {
+                if self.dependency_busy || self.command.is_running() { return iced::Task::none(); }
+                self.dependency_busy = true;
+                self.dependency_status = "Updating FFmpeg through Windows Package Manager...".into();
+                return iced::Task::perform(crate::dependencies::update_ffmpeg(), Message::DependencyUpdateComplete);
+            }
+            Message::DependencyUpdateComplete(status) => {
+                self.dependency_busy = false;
+                self.dependency_status = status;
+            }
             Message::ToggleAdvancedOptions => {
                 self.show_advanced_options = !self.show_advanced_options;
             }
@@ -590,6 +616,14 @@ impl YtGUI {
             .spacing(SPACING)
             .align_y(iced::Alignment::Center),
             cookies_from_browser,
+            text("Updates").size(22),
+            text(&self.dependency_status),
+            row![
+                button(text("Check versions")).on_press_maybe((!self.dependency_busy && !self.command.is_running()).then_some(Message::CheckDependencies)),
+                button(text("Update yt-dlp")).on_press_maybe((!self.dependency_busy && !self.command.is_running()).then_some(Message::UpdateYtDlp)),
+                button(text("Update FFmpeg (winget)")).on_press_maybe((!self.dependency_busy && !self.command.is_running()).then_some(Message::UpdateFfmpeg)),
+            ].spacing(8),
+            text("FFmpeg updates require a winget-managed installation. Custom executables are never replaced automatically.").size(14),
         ]
         .width(Length::Fill)
         .spacing(20)
