@@ -20,6 +20,7 @@ mod app;
 mod checkbox;
 mod collapsible;
 pub mod command;
+pub mod dependencies;
 pub mod cookies;
 mod error;
 pub mod i18n;
@@ -75,6 +76,11 @@ pub enum Message {
     UpdateCheck(Result<Option<update::Version>, update::Error>),
     OpenLink(String),
     ToggleAdvancedOptions,
+    CheckDependencies,
+    DependencyCheckComplete(String),
+    UpdateYtDlp,
+    UpdateFfmpeg,
+    DependencyUpdateComplete(String),
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -179,6 +185,8 @@ pub struct YtGUI {
     window_pos: Point,
     new_version: Option<update::Version>,
     show_advanced_options: bool,
+    dependency_status: String,
+    dependency_busy: bool,
 }
 
 impl YtGUI {
@@ -211,6 +219,8 @@ impl YtGUI {
             window_pos: Point::default(),
             new_version: None,
             show_advanced_options: false,
+            dependency_status: String::from("Not checked"),
+            dependency_busy: false,
         }
     }
 
