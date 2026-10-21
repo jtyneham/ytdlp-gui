@@ -16,12 +16,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - name: Check source
+        run: cargo check --locked
       - name: Build Windows executable
         run: cargo build --release --locked
       - name: Package executable
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
+          if (!(Test-Path target/release/ytdlp-gui.exe)) { throw "Expected executable not found" }
           Copy-Item target/release/ytdlp-gui.exe dist/
           Compress-Archive -Path dist/ytdlp-gui.exe -DestinationPath ytdlp-gui-windows-custom.zip
       - name: Publish GitHub Release directly (no Actions artifact)
