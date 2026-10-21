@@ -1,0 +1,33 @@
+name: Manual Windows release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (for example v3.5.1-custom.1)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  windows-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build Windows executable
+        run: cargo build --release --locked
+      - name: Package executable
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item target/release/ytdlp-gui.exe dist/
+          Compress-Archive -Path dist/ytdlp-gui.exe -DestinationPath ytdlp-gui-windows-custom.zip
+      - name: Publish GitHub Release directly (no Actions artifact)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          gh release create "$env:RELEASE_TAG" ytdlp-gui-windows-custom.zip --title "$env:RELEASE_TAG" --notes "Customized Windows build. yt-dlp and FFmpeg must be installed separately." --target "$env:GITHUB_SHA"
