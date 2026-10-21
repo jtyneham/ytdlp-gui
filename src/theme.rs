@@ -6,7 +6,7 @@ use iced_aw::tab_bar;
 use crate::{Message, YtGUI};
 
 const BACKGROUND: Color =
-    Color::from_rgb(0x36 as f32 / 255., 0x39 as f32 / 255., 0x3F as f32 / 255.);
+    Color::from_rgb(0x09 as f32 / 255., 0x09 as f32 / 255., 0x09 as f32 / 255.);
 
 const SURFACE: Color = Color::from_rgb(
     0x40 as f32 / 255.0,
